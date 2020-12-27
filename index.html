@@ -258,21 +258,53 @@ function getCountryName (countryCode) {
     }
 }
 
-	console.log(i18n-iso-countries)
-	function printNumbers() {
-		number = document.getElementById('number').value
-		results = ""
-		for (i = 0; i < countries.length; i++) {
-			fullNumber = "+" + libphonenumber.getCountryCallingCode(countries[i]) + number;
-			parsed = libphonenumber.parsePhoneNumber(fullNumber);
-			if (parsed.isValid()) {
-				result = getCountryName(countries[i]) + ": " + parsed.format("INTERNATIONAL");
+function priority(countries, number) {
+	score = 0
+	for (i = 0; i < countries.length; i++) {
+		if (number.indexOf(countries[i]) >= 0) {
+			return score;
+		}
+		score--;
+	}
+	return score;
+}
+
+function compare(a, b) {
+	priorities = [
+		'New Zealand',
+		'Australia',
+		'United Kingdom',
+		'United States',
+		'India',
+	];
+	aPriority = priority(priorities, a)
+	bPriority = priority(priorities, b)
+	return bPriority - aPriority;
+}
+
+function validatePhoneForE164(phoneNumber) {
+	// if we find some validation function, implement it here
+	return true
+};
+
+function printNumbers() {
+	number = document.getElementById('number').value
+	results = []
+	for (i = 0; i < countries.length; i++) {
+		fullNumber = "+" + libphonenumber.getCountryCallingCode(countries[i]) + number;
+		parsed = libphonenumber.parsePhoneNumber(fullNumber);
+		if (parsed.isValid()) {
+			formatted = parsed.format("INTERNATIONAL").split(' ').join('');
+			if (validatePhoneForE164(formatted)) {
+				result = getCountryName(countries[i]) + ": " + formatted;
 				console.log(result);
-				results += "\n" + result;
+				results.push(result)
 			}
 		}
-		document.getElementById('results').innerText = results;
 	}
+	results.sort(compare)
+	document.getElementById('results').innerText = results.join('\n')
+}
 </script>
 Phone Number: <input id='number' onchange="printNumbers()"></input>
 <button>Get possible countries</button>
