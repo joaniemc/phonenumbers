@@ -1,0 +1,22 @@
+<script src="https://unpkg.com/libphonenumber-js@1.x/bundle/libphonenumber-max.js"></script>
+<script type="text/javascript">
+	countries = libphonenumber.getCountries()
+
+	function printNumbers() {
+		number = document.getElementById('number').value
+		results = ""
+		for (i = 0; i < countries.length; i++) {
+			fullNumber = "+" + libphonenumber.getCountryCallingCode(countries[i]) + number;
+			parsed = libphonenumber.parsePhoneNumber(fullNumber);
+			if (parsed.isValid()) {
+				result = countries[i] + ": " + parsed.format("INTERNATIONAL");
+				console.log(result);
+				results += "\n" + result;
+			}
+		}
+		document.getElementById('results').innerText = results;
+	}
+</script>
+Phone Number: <input id='number' onchange="printNumbers()"></input>
+<button>Get possible countries</button>
+<div id='results'></div>
